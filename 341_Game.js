@@ -114,7 +114,7 @@ window.onload = function init(){
 	arena.show();
 	
 	
-	hero = new BasicCharacter(program, "Player 1", 0,20, 0, 100, 5, "Hero_Forward.png");
+	hero = new BasicCharacter(program, "Player 1", 0,20, 0, 100, 5, "RedDoor.png");
 	xyz = arena.getHeroStart();
 	hero.setXYZ(xyz[0],xyz[1],xyz[2]);
     hero.init();
@@ -205,6 +205,9 @@ window.onkeydown = function(event) {
     case 'W':
 		hero.moveZ(-10);
 	break;
+	case 'E':
+		hero.jump();
+	break;
     
 	case 'Q':
 	//put debug tests here
@@ -212,3 +215,7 @@ window.onkeydown = function(event) {
     }
 	
 };
+
+function view(){
+	
+}

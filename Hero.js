@@ -9,8 +9,10 @@ function Hero(program, name, x, y, z, health, attack, picture)  {
     this.iBuffer = null;
     this.vPosition = null;
     this.vNormal = null;
-
+	this.jumpState = 0;
+	this.jumpPosition = 0;
     
+	
     this.vertices = [
 	0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.0, 0.5,  0.5, 0.0, 0.5, // v0-v1-v2-v3 front
 	0.5, 0.5, 0.5,  0.5, 0.0, 0.5,  0.5, 0.0,-0.5,  0.5, 0.5,-0.5, // v0-v3-v4-v5 right
@@ -93,12 +95,40 @@ Hero.prototype.init = function() {
     };
 };
 
+Hero.prototype.jump = function(){
+	if(this.jumpPosition == 0){
+		this.jumpState = 1;
+	}
+}
+
 Hero.prototype.show = function() {
 
     g_matrixStack.push(modelViewMatrix);
     //modelViewMatrix = mult(modelViewMatrix, rotateY(this.degrees));
+	
+	if(this.jumpState == 1){
+		if(this.jumpPosition == -30){
+			this.jumpState = -1;
+		}
+		else{
+			this.z = this.z - this.jumpPosition;
+			this.jumpPosition -= 1;
+			this.z = this.z + this.jumpPosition;
+		}
+	}
+	else if(this.jumpState == -1){
+		if(this.jumpPosition == 0){
+			this.jumpState = 0;
+		}
+		else{
+			this.z = this.z - this.jumpPosition;
+			this.jumpPosition += 1;
+			this.z = this.z + this.jumpPosition;
+		}
+	}
+	
     modelViewMatrix = mult(modelViewMatrix, translate(this.x, 0.0, this.z));
-    modelViewMatrix = mult(modelViewMatrix, scalem(120.0,50.0,200.0));
+    modelViewMatrix = mult(modelViewMatrix, scalem(31.25,50.0,50.0));
 
     gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
     this.vPosition = gl.getAttribLocation( program, "vPosition" );
@@ -129,12 +159,7 @@ Hero.prototype.show = function() {
     gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
  		 1);
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-	
-	gl.enable(gl.BLEND);
-    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
-	gl.enable(gl.CULL_FACE);	
-    gl.cullFace(gl.FRONT);
-	
+
     gl.uniform1i(gl.getUniformLocation(program, "texture"), 0); 
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0 );  
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 12 ); 
@@ -142,10 +167,7 @@ Hero.prototype.show = function() {
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 36 ); 
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 48 );
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 60 );
-	
-	gl.disable(gl.BLEND );
-	gl.disable(gl.CULL_FACE);
-	
+    
     modelViewMatrix = g_matrixStack.pop();
     gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
 		 0);
