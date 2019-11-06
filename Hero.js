@@ -1,16 +1,14 @@
 function Hero(program, name, x, y, z, health, attack, picture)  {
     Characters.call(this, program, name, x, y, z, health, attack, picture);
 
-    // Not all of these are used, depending on whether you texture the
-    // object or render it with a lighting model
-    this.vBuffer = null;
-    this.tBuffer = null;
-    this.nBuffer = null;
-    this.iBuffer = null;
-    this.vPosition = null;
-    this.vNormal = null;
-	this.jumpState = 0;
-	this.jumpPosition = 0;
+    this.vbuffer = null;
+    this.tbuffer = null;
+    this.nbuffer = null;
+    this.ibuffer = null;
+    this.vposition = null;
+    this.vnormal = null;
+	this.jumpstate = 0;
+	this.jumpposition = 0;
     
 	
     this.vertices = [
@@ -43,8 +41,7 @@ function Hero(program, name, x, y, z, health, attack, picture)  {
     ];
     
     // Tex coords
-
-    this.texCoord = [
+    this.texcoord = [
 	1,1, 0,1, 0,0, 1,0,
 	0,1, 0,0, 1,0, 1,1,
 	0,0, 1,0, 1,1, 0,1,
@@ -56,28 +53,27 @@ function Hero(program, name, x, y, z, health, attack, picture)  {
 
 Hero.prototype = Object.create(Characters.prototype);
 
+
+/*
+	This method initializes the Hero Object into the buffers.  
+*/
 Hero.prototype.init = function() {
 
-    this.vBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
+    this.vbuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.vbuffer );
     gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW );
 
-    this.nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, this.nBuffer );
+    this.nbuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.nbuffer );
     gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW );
 
-    this.iBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iBuffer);
+    this.ibuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
 
-    this.tBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, this.tBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.texCoord), gl.STATIC_DRAW );
-
-    // WebGL guarantees at least eight texture units -- see
-    // http://webglstats.com/webgl/parameter/MAX_TEXTURE_IMAGE_UNITS
-    
-    // Texture 0
+    this.tbuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.tbuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.texcoord), gl.STATIC_DRAW );
     var image0 = new Image();
     image0.crossOrigin = "anonymous";
     image0.src = this.picture;
@@ -95,66 +91,67 @@ Hero.prototype.init = function() {
     };
 };
 
+
+/*
+	This method allows for the Hero to jump visually
+	on screen due to tweening.
+*/
 Hero.prototype.jump = function(){
-	if(this.jumpPosition == 0){
-		this.jumpState = 1;
+	if(this.jumpposition == 0){
+		this.jumpstate = 1;
 	}
 }
 
+/*
+	This method displays the Hero Object and checks the 
+	state of the jump that it is currently in.
+*/
 Hero.prototype.show = function() {
 
     g_matrixStack.push(modelViewMatrix);
-    //modelViewMatrix = mult(modelViewMatrix, rotateY(this.degrees));
 	
-	if(this.jumpState == 1){
-		if(this.jumpPosition == -30){
-			this.jumpState = -1;
+	if(this.jumpstate == 1){
+		if(this.jumpposition == -30){
+			this.jumpstate = -1;
 		}
 		else{
-			this.z = this.z - this.jumpPosition;
-			this.jumpPosition -= 1;
-			this.z = this.z + this.jumpPosition;
+			this.z = this.z - this.jumpposition;
+			this.jumpposition -= 1;
+			this.z = this.z + this.jumpposition;
 		}
 	}
-	else if(this.jumpState == -1){
-		if(this.jumpPosition == 0){
-			this.jumpState = 0;
+	else if(this.jumpstate == -1){
+		if(this.jumpposition == 0){
+			this.jumpstate = 0;
 		}
 		else{
-			this.z = this.z - this.jumpPosition;
-			this.jumpPosition += 1;
-			this.z = this.z + this.jumpPosition;
+			this.z = this.z - this.jumpposition;
+			this.jumpposition += 1;
+			this.z = this.z + this.jumpposition;
 		}
-	}
-	
+	} 
     modelViewMatrix = mult(modelViewMatrix, translate(this.x, 0.0, this.z));
     modelViewMatrix = mult(modelViewMatrix, scalem(31.25,50.0,50.0));
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
-    this.vPosition = gl.getAttribLocation( program, "vPosition" );
-    /*if (this.vPosition < 0) {
-	console.log('Failed to get the storage location of vPosition');
-    }*/
-    gl.vertexAttribPointer(this.vPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray( this.vPosition );    
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.vbuffer );
+    this.vposition = gl.getAttribLocation( program, "vposition" );
+	
+    gl.vertexAttribPointer(this.vposition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray( this.vposition );    
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, this.nBuffer );
-    this.vNormal = gl.getAttribLocation( program, "vNormal" );
-    /*if (this.vPosition < 0) {
-	console.log('Failed to get the storage location of vPosition');
-    }*/
-    gl.vertexAttribPointer( this.vNormal, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( this.vNormal );
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.nbuffer );
+    this.vnormal = gl.getAttribLocation( program, "vnormal" );
+	
+    gl.vertexAttribPointer( this.vnormal, 3, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( this.vnormal );
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, this.tBuffer);
-    this.vTexCoord = gl.getAttribLocation( program, "vTexCoord");
-    /*if (this.vTexCoord < 0) {
-	console.log('Failed to get the storage location of vTexCoord');
-    }*/
-    gl.vertexAttribPointer(this.vTexCoord, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(this.vTexCoord);
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.tbuffer);
+    this.vtexcoord = gl.getAttribLocation( program, "vtexcoord");
+	
+    gl.vertexAttribPointer(this.vtexcoord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(this.vtexcoord);
 
-    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.iBuffer );
+    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.ibuffer );
 
     gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
  		 1);
@@ -171,8 +168,7 @@ Hero.prototype.show = function() {
     modelViewMatrix = g_matrixStack.pop();
     gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
 		 0);
-    // Disable current vertex attribute arrays so those in a different object can be activated
-    gl.disableVertexAttribArray(this.vPosition);
-    gl.disableVertexAttribArray(this.vNormal);
-    gl.disableVertexAttribArray(this.vTexCoord);
+    gl.disableVertexAttribArray(this.vposition);
+    gl.disableVertexAttribArray(this.vnormal);
+    gl.disableVertexAttribArray(this.vtexcoord);
 };
