@@ -49,40 +49,29 @@ var stepCounter = -1;
 var walkThisWay = 0;
 var heroScore = 0;
 var villainScore = 0;
-//var audio = new Audio('Wilhelm Scream sound effect.mp3');
 var obj = 0;
 
-var g_matrixStack = []; // Stack for storing a matrix
+var g_matrixStack = []; 
 
 window.onload = function init(){
-	//				Set up for the Canvas and OpenGl
     canvas = document.getElementById( "gl-canvas" );
-    //document.getElementById("villainScore").innerHTML = villainScore;
 	document.getElementById("heroScore").innerHTML = heroScore;
        gl = WebGLUtils.setupWebGL( canvas );
-    //gl = WebGLDebugUtils.makeDebugContext( canvas.getContext("webgl") ); // For debugging
     if ( !gl ) { alert( "WebGL isn't available" ); }
     
-    //  Configure WebGL
-    
     gl.clearColor( 0.2, 0.2, 0.2, 1.0 );
-
-    //  Load shaders and initialize attribute buffers
 
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    eyex  = ARENASIZE/2.0;	// Where the hero starts
+    eyex  = ARENASIZE/2.0;	
     eyez  =  -ARENASIZE/2.0;
     aspect=width/height;
 
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
     gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
-		 0); // Assume no texturing is the default used in
-                     // shader.  If your game object uses it, be sure
-                     // to switch it back to 0 for consistency with
-                     // those objects that use the defalt.
+		 0); 
 	
 	var temp = function mapView(){
 			modelViewMatrix = lookAt(  vec3(0.0,100.0,-0.0),
@@ -104,8 +93,6 @@ window.onload = function init(){
 	screens.push(temp);
 	screens[0]();
 	
-    
-    //				End Set up fot Canvas and OpenGl
 	gl.uniform1i(gl.getUniformLocation(program, "texture_flag"), 1);
     arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
 	document.getElementById("villainScore").innerHTML = arena.getName();
@@ -139,40 +126,8 @@ function render()
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
 	}
-	/*if(mode == true){
-    // Hero's eye viewport 
-    gl.viewport( vp1_left, vp1_bottom, width, height );
-    
-    lp0[0] = hero.x + hero.xdir; // Light in front of hero, in line with hero's direction
-    lp0[1] = EYEHEIGHT;
-    lp0[2] = hero.z + hero.zdir;
-    modelViewMatrix = lookAt( vec3(hero.x, 100.0, hero.z),
-			      vec3(hero.x + hero.xdir, EYEHEIGHT, hero.z + hero.zdir),
-			      vec3(0.0,0.0,-1.0) );
-    projectionMatrix = perspective( fov, HERO_VP * aspect, near, far );
-    gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-    gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
-    arena.show();
-	hero.show();
-	}
-	else{
-    // Overhead viewport 
-    //var horiz_offset = (width * (1.0 - HERO_VP) / 20.0);
-    gl.viewport( vp1_left, vp1_bottom, width, height );
-    modelViewMatrix = lookAt(  vec3(500.0,100.0,-500.0),
-			       vec3(500.0,0.0,-500.0),
-			       vec3(0.0,0.0,-1.0) );
-    projectionMatrix = ortho( -500,500, -500,500, 0,200 );
-    gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-    gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
-    arena.show();
-	hero.show();
-	}*/
-	
     requestAnimFrame( render );
 };
-
-// Key listener
 
 window.onkeydown = function(event) {
     var key = String.fromCharCode(event.keyCode);
@@ -183,27 +138,13 @@ window.onkeydown = function(event) {
     case 'A':
 		hero.moveX(-10);
 	break;
-	case 'W' && 'D':
-		hero.moveZ(-10);
-		hero.moveX(10);
-	break;
-	case 'W' && 'A':
-		hero.moveZ(-10);
-		hero.moveX(-10);
-	break;
-	case 'S' && 'D':
-		hero.moveZ(10);
-		hero.moveX(10);
-	break;
-	case 'S' && 'A':
-		hero.moveZ(10);
-		hero.moveX(-10);
-	break;
     case 'S':
-		hero.moveZ(10);
+		if(arena.getName() == "Demo")
+			hero.moveZ(10);
 	break;
     case 'W':
-		hero.moveZ(-10);
+		if(arena.getName() == "Demo")
+			hero.moveZ(-10);
 	break;
 	case 'E':
 		hero.jump();
