@@ -1,3 +1,6 @@
+/*
+	Creates Level Object from Screens Object
+*/
 function Level (program, x, y, z, name, view, picture) {
 	Screens.call(this,program, x, y, z, name, view);
 	this.picture = picture;
@@ -47,68 +50,65 @@ function Level (program, x, y, z, name, view, picture) {
     this.vNormal = null;
 };
 
-	Level.prototype = Object.create(Screens.prototype);
+Level.prototype = Object.create(Screens.prototype);
+
+/*
+	Initializes Level Object onto the buffers
+*/
+Level.prototype.init = function () {
+
+	this.vBuffer = gl.createBuffer();
+	gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
+	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW );
+
+	this.nBuffer = gl.createBuffer();
+	gl.bindBuffer( gl.ARRAY_BUFFER, this.nBuffer );
+	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW );
+
+	this.iBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
+
+	this.tBuffer = gl.createBuffer();
+	gl.bindBuffer( gl.ARRAY_BUFFER, this.tBuffer);
+	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.texCoord), gl.STATIC_DRAW );
 	
-    Level.prototype.init = function () {
+	// Texture 0
+	var image1 = new Image();
+	image1.crossOrigin = "anonymous";
+	image1.src = this.picture;
+	image1.onload = function() { 
+	var texture1 = gl.createTexture();
+	gl.activeTexture( gl.TEXTURE1);
+	gl.bindTexture( gl.TEXTURE_2D, texture1 );
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
+			  gl.UNSIGNED_BYTE, image1);
+	gl.generateMipmap( gl.TEXTURE_2D );
+	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
+			  gl.NEAREST_MIPMAP_LINEAR );
+	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+	};
 
-		this.vBuffer = gl.createBuffer();
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW );
+};
 
-		this.nBuffer = gl.createBuffer();
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.nBuffer );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW );
-
-		this.iBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iBuffer);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
-
-		this.tBuffer = gl.createBuffer();
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.tBuffer);
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.texCoord), gl.STATIC_DRAW );
-		
-		// Texture 0
-		var image1 = new Image();
-		image1.crossOrigin = "anonymous";
-		image1.src = this.picture;
-		image1.onload = function() { 
-		var texture1 = gl.createTexture();
-		gl.activeTexture( gl.TEXTURE1);
-		gl.bindTexture( gl.TEXTURE_2D, texture1 );
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
-				  gl.UNSIGNED_BYTE, image1);
-		gl.generateMipmap( gl.TEXTURE_2D );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
-				  gl.NEAREST_MIPMAP_LINEAR );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
-		};
-	
-    };
-
+/*
+	Displays Level Object from the buffers
+*/
 Level.prototype.show = function () {
 
 	gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
 	this.vPosition = gl.getAttribLocation( program, "vPosition" );
-	/*if (this.vPosition < 0) {
-	console.log('Failed to get the storage location of vPosition');
-	}*/
 	gl.vertexAttribPointer(this.vPosition, 3, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray( this.vPosition );    
 
 	gl.bindBuffer( gl.ARRAY_BUFFER, this.nBuffer );
 	this.vNormal = gl.getAttribLocation( program, "vNormal" );
-	/*if (this.vPosition < 0) {
-	console.log('Failed to get the storage location of vPosition');
-	}*/
 	gl.vertexAttribPointer( this.vNormal, 3, gl.FLOAT, false, 0, 0 );
 	gl.enableVertexAttribArray( this.vNormal );
 
 	gl.bindBuffer( gl.ARRAY_BUFFER, this.tBuffer);
 	this.vTexCoord = gl.getAttribLocation( program, "vTexCoord");
-	/*if (this.vTexCoord < 0) {
-	console.log('Failed to get the storage location of vTexCoord');
-	}*/
 	gl.vertexAttribPointer(this.vTexCoord, 2, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(this.vTexCoord);
 
@@ -127,7 +127,6 @@ Level.prototype.show = function () {
 
 	gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
 		 0);
-	// Disable current vertex attribute arrays so those in a different object can be activated
 	gl.disableVertexAttribArray(this.vPosition);
 	gl.disableVertexAttribArray(this.vNormal);
 	gl.disableVertexAttribArray(this.vTexCoord);
