@@ -3,12 +3,10 @@ function Level1(program, x, y, z, name, view, picture)  {
 	var floors = [];
 	this.temp = "";
 	
-	//for(var i = 0;i < 1000; i = i + 30){
-		for(var j = 0;j < 1000; j = j + 50){
-		temp = new DirtFloor(program,0,30,j,"DirtFloor.png");
+	for(var j = -970;j < 1000; j = j + 60){
+		temp = new DirtFloor(program,j,30,1000,"DirtFloor.png");
 		floors.push(temp);
 	}
-	//}
 	
 	Level.call(this,program, x, y, z, name, view, picture,floors);
 };
