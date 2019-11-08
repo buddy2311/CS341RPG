@@ -1,0 +1,15 @@
+﻿<Window x:Class="ControllerCS341.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ControllerCS341"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBox x:Name="DoNotEdit" HorizontalAlignment="Left" Height="21" Margin="140,71,0,0" TextWrapping="Wrap" Text="Select Test" VerticalAlignment="Top" Width="62"/>
+        <ComboBox x:Name="TestSelector" HorizontalAlignment="Left" Margin="113,110,0,0" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="PrintData" HorizontalAlignment="Left" Height="144" Margin="309,73,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="113"/>
+
+    </Grid>
+</Window>
