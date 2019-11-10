@@ -52,6 +52,8 @@ var villainScore = 0;
 var floors = [];
 var floorBindings = [];
 var onFloor;
+var onLeft = false;
+var onRight = false;
 //var audio = new Audio('Wilhelm Scream sound effect.mp3');
 var obj = 0;
 
@@ -137,7 +139,7 @@ function render()
 	hero.show();
 	spot = hero.getXYZ();
 	if(arena.getName() == "Demo" && spot[0] >= 50 && spot[2] >= 50){
-		arena = new Level1(program, -750, 20, 900, "Level1", screens[1],"BlueDoor.png");
+		arena = new Level1(program, -750, 20, 900, "Level1", screens[1],"Level1.png");
 		arena.init();
 		floorBindings = arena.getBindings();
 		xyz = arena.getHeroStart();
@@ -146,10 +148,19 @@ function render()
 	if(floorBindings.length != 0){
 		var heroPos = hero.getXYZ();
 		for(var i = 0; i < floorBindings.length; ++i){
-			if(floorBindings[i][0] == (heroPos[0]+ 30) || floorBindings[i][2] == (heroPos[2]+50)){
+			var floorZ = floorBindings[i].getXYZ();
+			if(floorZ[2]  <= (heroPos[2]+50)){
 				onFloor = true;
-				break;
 			}
+			else{onFloor = false;}
+			if(floorZ[0] - heroPos[0] <= (30)){
+				onRight = true;
+			}
+			else{onRight = false;}
+			if(floorZ[0] - heroPos[0] >= 30){
+				onLeft = true;
+			}
+			else{onLeft = false;}
 		}
 		if(onFloor == false){
 			hero.moveZ(2);
@@ -184,7 +195,6 @@ function render()
     arena.show();
 	hero.show();
 	}*/
-	
     requestAnimFrame( render );
 };
 
@@ -194,10 +204,14 @@ window.onkeydown = function(event) {
     var key = String.fromCharCode(event.keyCode);
 	switch (key) {
 	case 'D':
-	hero.moveX(10);
+	if(onRight == false){
+		hero.moveX(10);
+	}
 	break;
     case 'A':
-		hero.moveX(-10);
+		if(onLeft == false){
+			hero.moveX(-10);
+		}
 	break;
     case 'S':
 		if(arena.getName() == "Demo"){
@@ -205,9 +219,9 @@ window.onkeydown = function(event) {
 		}
 	break;
     case 'W':
-		if(arena.getName() == "Demo"){
+		//if(arena.getName() == "Demo"){
 			hero.moveZ(-10);
-		}
+		//}
 	break;
 	
 	case 'Q':

@@ -8,4 +8,8 @@ function Objects(program, x, y, z, picture)  {
 	Objects.prototype.getXYZ = function () {
 		return [this.x,this.y,this.z];
     };
+	
+	Objects.prototype.getPicture = function () {
+		return this.picture;
+    };
 };
