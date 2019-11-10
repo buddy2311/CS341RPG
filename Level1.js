@@ -3,8 +3,12 @@ function Level1(program, x, y, z, name, view, picture)  {
 	var floors = [];
 	this.temp = "";
 	
-	for(var j = 0;j < 1000; j = j + 50){
-		temp = new DirtFloor(program,0,30,j,"DirtFloor.png");
+	for(var j = -970;j < 1000; j = j + 60){
+		temp = new DirtFloor(program,j,30,1000,"DirtFloor.png");
+		floors.push(temp);
+	}
+	for(var j = -970;j < 1000; j = j + 100){
+		temp = new DirtFloor(program,1000,30,j,"DirtFloor.png");
 		floors.push(temp);
 	}
 	
