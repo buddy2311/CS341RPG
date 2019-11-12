@@ -54,7 +54,7 @@ var floorBindings = [];
 var onFloor;
 var onLeft = false;
 var onRight = false;
-//var audio = new Audio('Wilhelm Scream sound effect.mp3');
+var audio = new Audio('Meanwhile in Bavaria.mp3');
 var obj = 0;
 
 var g_matrixStack = []; // Stack for storing a matrix
@@ -62,8 +62,6 @@ var g_matrixStack = []; // Stack for storing a matrix
 window.onload = function init(){
 	//				Set up for the Canvas and OpenGl
     canvas = document.getElementById( "gl-canvas" );
-    //document.getElementById("villainScore").innerHTML = villainScore;
-	document.getElementById("heroScore").innerHTML = heroScore;
        gl = WebGLUtils.setupWebGL( canvas );
     //gl = WebGLDebugUtils.makeDebugContext( canvas.getContext("webgl") ); // For debugging
     if ( !gl ) { alert( "WebGL isn't available" ); }
@@ -71,7 +69,7 @@ window.onload = function init(){
     //  Configure WebGL
     
     gl.clearColor( 0.2, 0.2, 0.2, 1.0 );
-
+	audio.play();
     //  Load shaders and initialize attribute buffers
 
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
@@ -113,7 +111,6 @@ window.onload = function init(){
     //				End Set up fot Canvas and OpenGl
 	gl.uniform1i(gl.getUniformLocation(program, "texture_flag"), 1);
     arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
-	document.getElementById("villainScore").innerHTML = arena.getName();
 	arena.getView()();
     arena.init();
 	arena.show();
@@ -144,6 +141,9 @@ function render()
 		floorBindings = arena.getBindings();
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		audio.pause();
+		audio = new Audio('Double Polka.mp3');
+		audio.play();
 	}
 	if(floorBindings.length != 0){
 		var heroPos = hero.getXYZ();
