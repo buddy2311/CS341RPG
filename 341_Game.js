@@ -62,6 +62,7 @@ var g_matrixStack = []; // Stack for storing a matrix
 window.onload = function init(){
 	//				Set up for the Canvas and OpenGl
     canvas = document.getElementById( "gl-canvas" );
+    //document.getElementById("villainScore").innerHTML = villainScore;
        gl = WebGLUtils.setupWebGL( canvas );
     //gl = WebGLDebugUtils.makeDebugContext( canvas.getContext("webgl") ); // For debugging
     if ( !gl ) { alert( "WebGL isn't available" ); }
@@ -145,6 +146,16 @@ function render()
 		audio = new Audio('Double Polka.mp3');
 		audio.play();
 	}
+	if(arena.getName() == "Level1" && spot[0] <= -900 && spot[2] <= -800){
+		arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
+		arena.init();
+		xyz = arena.getHeroStart();
+		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		audio.pause();
+		audio = new Audio('Meanwhile in Bavaria.mp3');
+		audio.play();
+	}
+
 	if(floorBindings.length != 0){
 		var heroPos = hero.getXYZ();
 		for(var i = 0; i < floorBindings.length; ++i){
@@ -204,14 +215,14 @@ window.onkeydown = function(event) {
     var key = String.fromCharCode(event.keyCode);
 	switch (key) {
 	case 'D':
-	if(onRight == false){
-		hero.moveX(10);
-	}
+		//if(onRight == false){
+			hero.moveX(10);
+		//}
 	break;
     case 'A':
-		if(onLeft == false){
+		//if(onLeft == false){
 			hero.moveX(-10);
-		}
+		//}
 	break;
     case 'S':
 		if(arena.getName() == "Demo"){
@@ -223,7 +234,9 @@ window.onkeydown = function(event) {
 			hero.moveZ(-10);
 		//}
 	break;
-	
+	case 'E':
+		hero.jump();
+	break;
 	case 'Q':
 	//put debug tests here
 	break;
