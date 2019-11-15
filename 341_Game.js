@@ -146,11 +146,30 @@ function render()
 		audio = new Audio('Double Polka.mp3');
 		audio.play();
 	}
+	if(arena.getName() == "Demo" && spot[0] <= -50 && spot[0] >= -150 && spot[2] <= -50 && spot[2] >= -150){
+		arena = new Level2(program, -750, 20, 900, "Level2", screens[1],"Level1.png");
+		arena.init();
+		floorBindings = arena.getBindings();
+		xyz = arena.getHeroStart();
+		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		audio.pause();
+		audio = new Audio('Four Beers Polka.mp3');
+		audio.play();
+	}
 	if(arena.getName() == "Level1" && spot[0] <= -900 && spot[2] <= -800){
 		arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
 		arena.init();
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		audio.pause();
+		audio = new Audio('Meanwhile in Bavaria.mp3');
+		audio.play();
+	}
+	if(arena.getName() == "Level2" && spot[0] >= 100 && spot[2] <= -200){
+		arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
+		xyz = arena.getHeroStart();
+		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		arena.init();
 		audio.pause();
 		audio = new Audio('Meanwhile in Bavaria.mp3');
 		audio.play();
