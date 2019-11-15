@@ -9,6 +9,8 @@ function Hero(program, name, x, y, z, health, attack, picture)  {
     this.iBuffer = null;
     this.vPosition = null;
     this.vNormal = null;
+	this.jumpState = 0;
+	this.jumpPosition = 0;
 
     
     this.vertices = [
@@ -93,9 +95,38 @@ Hero.prototype.init = function() {
     };
 };
 
+/*
+	This method allows for the Hero to jump visually
+	on screen due to tweening.
+*/
+Hero.prototype.jump = function(){
+	if(this.jumpPosition == 0){
+		this.jumpState = 1;
+	}
+}
 Hero.prototype.show = function() {
 
     g_matrixStack.push(modelViewMatrix);
+	if(this.jumpState == 1){
+		if(this.jumpPosition == -350){
+			this.jumpState = -1;
+		}
+		else{
+			this.z = this.z - this.jumpPosition;
+			this.jumpPosition -= 7;
+			this.z = this.z + this.jumpPosition;
+		}
+	}
+	else if(this.jumpState == -1){
+		if(this.jumpPosition == 0){
+			this.jumpState = 0;
+		}
+		else{
+			this.z = this.z - this.jumpPosition;
+			this.jumpPosition += 7;
+			this.z = this.z + this.jumpPosition;
+		}
+	} 
     //modelViewMatrix = mult(modelViewMatrix, rotateY(this.degrees));
     modelViewMatrix = mult(modelViewMatrix, translate(this.x, 0.0, this.z));
     modelViewMatrix = mult(modelViewMatrix, scalem(120.0,50.0,200.0));
