@@ -1,6 +1,8 @@
 function Hero(program, name, x, y, z, health, attack, picture)  {
     Characters.call(this, program, name, x, y, z, health, attack, picture);
 
+    // Not all of these are used, depending on whether you texture the
+    // object or render it with a lighting model
     this.vBuffer = null;
     this.tBuffer = null;
     this.nBuffer = null;
@@ -9,8 +11,8 @@ function Hero(program, name, x, y, z, health, attack, picture)  {
     this.vNormal = null;
 	this.jumpState = 0;
 	this.jumpPosition = 0;
+
     
-	
     this.vertices = [
 	0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.0, 0.5,  0.5, 0.0, 0.5, // v0-v1-v2-v3 front
 	0.5, 0.5, 0.5,  0.5, 0.0, 0.5,  0.5, 0.0,-0.5,  0.5, 0.5,-0.5, // v0-v3-v4-v5 right
@@ -41,6 +43,7 @@ function Hero(program, name, x, y, z, health, attack, picture)  {
     ];
     
     // Tex coords
+
     this.texCoord = [
 	1,1, 0,1, 0,0, 1,0,
 	0,1, 0,0, 1,0, 1,1,
@@ -53,10 +56,6 @@ function Hero(program, name, x, y, z, health, attack, picture)  {
 
 Hero.prototype = Object.create(Characters.prototype);
 
-
-/*
-	This method initializes the Hero Object into the buffers.  
-*/
 Hero.prototype.init = function() {
 
     this.vBuffer = gl.createBuffer();
@@ -74,6 +73,11 @@ Hero.prototype.init = function() {
     this.tBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, this.tBuffer);
     gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(this.texCoord), gl.STATIC_DRAW );
+
+    // WebGL guarantees at least eight texture units -- see
+    // http://webglstats.com/webgl/parameter/MAX_TEXTURE_IMAGE_UNITS
+    
+    // Texture 0
     var image0 = new Image();
     image0.crossOrigin = "anonymous";
     image0.src = this.picture;
@@ -91,7 +95,6 @@ Hero.prototype.init = function() {
     };
 };
 
-
 /*
 	This method allows for the Hero to jump visually
 	on screen due to tweening.
@@ -101,22 +104,16 @@ Hero.prototype.jump = function(){
 		this.jumpState = 1;
 	}
 }
-
-/*
-	This method displays the Hero Object and checks the 
-	state of the jump that it is currently in.
-*/
 Hero.prototype.show = function() {
 
     g_matrixStack.push(modelViewMatrix);
-	
 	if(this.jumpState == 1){
-		if(this.jumpPosition == -30){
+		if(this.jumpPosition == -350){
 			this.jumpState = -1;
 		}
 		else{
 			this.z = this.z - this.jumpPosition;
-			this.jumpPosition -= 1;
+			this.jumpPosition -= 7;
 			this.z = this.z + this.jumpPosition;
 		}
 	}
@@ -126,28 +123,35 @@ Hero.prototype.show = function() {
 		}
 		else{
 			this.z = this.z - this.jumpPosition;
-			this.jumpPosition += 1;
+			this.jumpPosition += 7;
 			this.z = this.z + this.jumpPosition;
 		}
 	} 
+    //modelViewMatrix = mult(modelViewMatrix, rotateY(this.degrees));
     modelViewMatrix = mult(modelViewMatrix, translate(this.x, 0.0, this.z));
-    modelViewMatrix = mult(modelViewMatrix, scalem(31.25,50.0,50.0));
+    modelViewMatrix = mult(modelViewMatrix, scalem(120.0,50.0,200.0));
 
     gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
     this.vPosition = gl.getAttribLocation( program, "vPosition" );
-	
+    /*if (this.vPosition < 0) {
+	console.log('Failed to get the storage location of vPosition');
+    }*/
     gl.vertexAttribPointer(this.vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray( this.vPosition );    
 
     gl.bindBuffer( gl.ARRAY_BUFFER, this.nBuffer );
     this.vNormal = gl.getAttribLocation( program, "vNormal" );
-	
+    /*if (this.vPosition < 0) {
+	console.log('Failed to get the storage location of vPosition');
+    }*/
     gl.vertexAttribPointer( this.vNormal, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( this.vNormal );
 
     gl.bindBuffer( gl.ARRAY_BUFFER, this.tBuffer);
     this.vTexCoord = gl.getAttribLocation( program, "vTexCoord");
-
+    /*if (this.vTexCoord < 0) {
+	console.log('Failed to get the storage location of vTexCoord');
+    }*/
     gl.vertexAttribPointer(this.vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(this.vTexCoord);
 
@@ -156,7 +160,12 @@ Hero.prototype.show = function() {
     gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
  		 1);
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-
+	
+	gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+	gl.enable(gl.CULL_FACE);	
+    gl.cullFace(gl.FRONT);
+	
     gl.uniform1i(gl.getUniformLocation(program, "texture"), 0); 
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0 );  
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 12 ); 
@@ -164,7 +173,10 @@ Hero.prototype.show = function() {
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 36 ); 
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 48 );
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 60 );
-    
+	
+	gl.disable(gl.BLEND );
+	gl.disable(gl.CULL_FACE);
+	
     modelViewMatrix = g_matrixStack.pop();
     gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
 		 0);

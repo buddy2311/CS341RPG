@@ -8,7 +8,6 @@ function Floor(program, x, y, z, picture)  {
     this.iBuffer = null;
     this.vPosition = null;
     this.vNormal = null;
-
     
     this.vertices = [
 	0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.0, 0.5,  0.5, 0.0, 0.5, // v0-v1-v2-v3 front
@@ -75,16 +74,16 @@ Floor.prototype.init = function() {
     // http://webglstats.com/webgl/parameter/MAX_TEXTURE_IMAGE_UNITS
     
     // Texture 1
-    var image1 = new Image();
-    image1.crossOrigin = "anonymous";
-    image1.src = this.picture;
-    image1.onload = function() { 
-	var texture1 = gl.createTexture();
-	gl.activeTexture( gl.TEXTURE1);
-	gl.bindTexture( gl.TEXTURE_2D, texture1 );
+    var image2 = new Image();
+    image2.crossOrigin = "anonymous";
+    image2.src = this.picture;
+    image2.onload = function() { 
+	var texture2 = gl.createTexture();
+	gl.activeTexture( gl.TEXTURE2);
+	gl.bindTexture( gl.TEXTURE_2D, texture2 );
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
-		      gl.UNSIGNED_BYTE, image1);
+		      gl.UNSIGNED_BYTE, image2);
 	gl.generateMipmap( gl.TEXTURE_2D );
 	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
 			  gl.NEAREST_MIPMAP_LINEAR );
@@ -95,7 +94,8 @@ Floor.prototype.init = function() {
 Floor.prototype.show = function() {
 
     g_matrixStack.push(modelViewMatrix);
-    modelViewMatrix = mult(modelViewMatrix, scalem(60.0,50.0,100.0));
+	modelViewMatrix = mult(modelViewMatrix, translate(this.x, 0.0, this.z));
+    modelViewMatrix = mult(modelViewMatrix, scalem(60.0,0.0,100.0));
 
     gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
     this.vPosition = gl.getAttribLocation( program, "vPosition" );
@@ -123,8 +123,7 @@ Floor.prototype.show = function() {
 
     gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.iBuffer );
 
-    gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
- 		 1);
+    gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),1);
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
 	
 	gl.enable(gl.BLEND);
@@ -132,7 +131,7 @@ Floor.prototype.show = function() {
 	gl.enable(gl.CULL_FACE);	
     gl.cullFace(gl.FRONT);
 	
-    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0); 
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 2); 
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0 );  
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 12 ); 
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 24 ); 

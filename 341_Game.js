@@ -49,29 +49,44 @@ var stepCounter = -1;
 var walkThisWay = 0;
 var heroScore = 0;
 var villainScore = 0;
+var floors = [];
+var floorBindings = [];
+var onFloor;
+var onLeft = false;
+var onRight = false;
+var audio = new Audio('Meanwhile in Bavaria.mp3');
 var obj = 0;
 
-var g_matrixStack = []; 
+var g_matrixStack = []; // Stack for storing a matrix
 
 window.onload = function init(){
+	//				Set up for the Canvas and OpenGl
     canvas = document.getElementById( "gl-canvas" );
-	document.getElementById("heroScore").innerHTML = heroScore;
+    //document.getElementById("villainScore").innerHTML = villainScore;
        gl = WebGLUtils.setupWebGL( canvas );
+    //gl = WebGLDebugUtils.makeDebugContext( canvas.getContext("webgl") ); // For debugging
     if ( !gl ) { alert( "WebGL isn't available" ); }
     
+    //  Configure WebGL
+    
     gl.clearColor( 0.2, 0.2, 0.2, 1.0 );
+	audio.play();
+    //  Load shaders and initialize attribute buffers
 
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    eyex  = ARENASIZE/2.0;	
+    eyex  = ARENASIZE/2.0;	// Where the hero starts
     eyez  =  -ARENASIZE/2.0;
     aspect=width/height;
 
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
     gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
-		 0); 
+		 0); // Assume no texturing is the default used in
+                     // shader.  If your game object uses it, be sure
+                     // to switch it back to 0 for consistency with
+                     // those objects that use the defalt.
 	
 	var temp = function mapView(){
 			modelViewMatrix = lookAt(  vec3(0.0,100.0,-0.0),
@@ -93,15 +108,16 @@ window.onload = function init(){
 	screens.push(temp);
 	screens[0]();
 	
+    
+    //				End Set up fot Canvas and OpenGl
 	gl.uniform1i(gl.getUniformLocation(program, "texture_flag"), 1);
     arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
-	document.getElementById("villainScore").innerHTML = arena.getName();
 	arena.getView()();
     arena.init();
 	arena.show();
 	
 	
-	hero = new BasicCharacter(program, "Player 1", 0,20, 0, 100, 5, "RedDoor.png");
+	hero = new BasicCharacter(program, "Player 1", 0,20, 0, 100, 5, "Hero_Forward.png");
 	xyz = arena.getHeroStart();
 	hero.setXYZ(xyz[0],xyz[1],xyz[2]);
     hero.init();
@@ -121,42 +137,147 @@ function render()
 	hero.show();
 	spot = hero.getXYZ();
 	if(arena.getName() == "Demo" && spot[0] >= 50 && spot[2] >= 50){
-		arena = new Level(program, 0, 20, 0, "Level1", screens[1],"BlueDoor.png");
+		arena = new Level1(program, -750, 20, 900, "Level1", screens[1],"Level1.png");
+		arena.init();
+		floorBindings = arena.getBindings();
+		xyz = arena.getHeroStart();
+		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		audio.pause();
+		audio = new Audio('Double Polka.mp3');
+		audio.play();
+	}
+	if(arena.getName() == "Demo" && spot[0] <= -50 && spot[0] >= -150 && spot[2] <= -50 && spot[2] >= -150){
+		arena = new Level2(program, -750, 20, 900, "Level2", screens[1],"Level1.png");
+		arena.init();
+		floorBindings = arena.getBindings();
+		xyz = arena.getHeroStart();
+		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		audio.pause();
+		audio = new Audio('Double Polka.mp3');
+		audio.play();
+	}
+	if(arena.getName() == "Demo" && spot[0] <= -500 && spot[0] >= -600 && spot[2] <= -50 && spot[2] >= -150){
+		arena = new Level3(program, -750, 20, 900, "Level3", screens[1],"Level1.png");
+		arena.init();
+		floorBindings = arena.getBindings();
+		xyz = arena.getHeroStart();
+		hero.setXYZ(950,xyz[1],xyz[2]);
+		audio.pause();
+		audio = new Audio('Four Beers Polka.mp3');
+		audio.play();
+	}
+	if(arena.getName() == "Level1" && spot[0] <= -900 && spot[2] <= -800){
+		arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
 		arena.init();
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		audio.pause();
+		audio = new Audio('Meanwhile in Bavaria.mp3');
+		audio.play();
 	}
+	if(arena.getName() == "Level2" && spot[0] >= 100 && spot[2] <= -200){
+		arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
+		xyz = arena.getHeroStart();
+		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		arena.init();
+		audio.pause();
+		audio = new Audio('Meanwhile in Bavaria.mp3');
+		audio.play();
+	}
+	if(arena.getName() == "Level3" && spot[0] >= 600 && spot[2] <= 0){
+		arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
+		xyz = arena.getHeroStart();
+		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
+		arena.init();
+		audio.pause();
+		audio = new Audio('Meanwhile in Bavaria.mp3');
+		audio.play();
+	}
+
+	if(floorBindings.length != 0){
+		var heroPos = hero.getXYZ();
+		for(var i = 0; i < floorBindings.length; ++i){
+			var floorZ = floorBindings[i].getXYZ();
+			if(floorZ[2]  <= (heroPos[2]+50)){
+				onFloor = true;
+			}
+			else{onFloor = false;}
+			if(floorZ[0] - heroPos[0] <= (30)){
+				onRight = true;
+			}
+			else{onRight = false;}
+			if(floorZ[0] - heroPos[0] >= 30){
+				onLeft = true;
+			}
+			else{onLeft = false;}
+		}
+		if(onFloor == false){
+			hero.moveZ(2);
+		}
+	}
+	/*if(mode == true){
+    // Hero's eye viewport 
+    gl.viewport( vp1_left, vp1_bottom, width, height );
+    
+    lp0[0] = hero.x + hero.xdir; // Light in front of hero, in line with hero's direction
+    lp0[1] = EYEHEIGHT;
+    lp0[2] = hero.z + hero.zdir;
+    modelViewMatrix = lookAt( vec3(hero.x, 100.0, hero.z),
+			      vec3(hero.x + hero.xdir, EYEHEIGHT, hero.z + hero.zdir),
+			      vec3(0.0,0.0,-1.0) );
+    projectionMatrix = perspective( fov, HERO_VP * aspect, near, far );
+    gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
+    gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
+    arena.show();
+	hero.show();
+	}
+	else{
+    // Overhead viewport 
+    //var horiz_offset = (width * (1.0 - HERO_VP) / 20.0);
+    gl.viewport( vp1_left, vp1_bottom, width, height );
+    modelViewMatrix = lookAt(  vec3(500.0,100.0,-500.0),
+			       vec3(500.0,0.0,-500.0),
+			       vec3(0.0,0.0,-1.0) );
+    projectionMatrix = ortho( -500,500, -500,500, 0,200 );
+    gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
+    gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
+    arena.show();
+	hero.show();
+	}*/
     requestAnimFrame( render );
 };
+
+// Key listener
 
 window.onkeydown = function(event) {
     var key = String.fromCharCode(event.keyCode);
 	switch (key) {
 	case 'D':
-	hero.moveX(10);
+		//if(onRight == false){
+			hero.moveX(10);
+		//}
 	break;
     case 'A':
-		hero.moveX(-10);
+		//if(onLeft == false){
+			hero.moveX(-10);
+		//}
 	break;
     case 'S':
-		if(arena.getName() == "Demo")
+		if(arena.getName() == "Demo"){
 			hero.moveZ(10);
+		}
 	break;
     case 'W':
-		if(arena.getName() == "Demo")
+		//if(arena.getName() == "Demo"){
 			hero.moveZ(-10);
+		//}
 	break;
 	case 'E':
 		hero.jump();
 	break;
-    
 	case 'Q':
 	//put debug tests here
 	break;
     }
 	
 };
-
-function view(){
-	
-}
