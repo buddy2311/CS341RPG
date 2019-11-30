@@ -194,25 +194,48 @@ function render()
 		audio.play();
 	}
 
-	if(floorBindings.length != 0){
+	if(floorBindings != null && floorBindings.length != 0){
 		var heroPos = hero.getXYZ();
-		for(var i = 0; i < floorBindings.length; ++i){
-			var floorZ = floorBindings[i].getXYZ();
-			if(floorZ[2]  <= (heroPos[2]+50)){
-				onFloor = true;
+		var check = [];
+		for(var j = 0; j < floorBindings.length; ++j){
+			var floorZ = floorBindings[j];
+			
+			if( (heroPos[0] <= floorZ[0]+65 && heroPos[0] >= floorZ[0]-65) && (heroPos[2] >= floorZ[2]-100 && heroPos[2] <= floorZ[2]+100) ){
+				check.push(floorZ);
 			}
-			else{onFloor = false;}
-			if(floorZ[0] - heroPos[0] <= (30)){
-				onRight = true;
-			}
-			else{onRight = false;}
-			if(floorZ[0] - heroPos[0] >= 30){
-				onLeft = true;
-			}
-			else{onLeft = false;}
 		}
+		if(check.length > 0){
+			for(var i = 0; i < check.length; ++i){
+				if(heroPos[0] <= check[i][0]+35 && heroPos[0] >= check[i][0]-35 && heroPos[2] >= check[i][2]-70 && heroPos[2] <= check[i][2]-50){
+					onFloor = true;
+					break;
+				}
+				else{onFloor = false;}
+				
+			}
+			for(var i = 0; i < check.length; ++i){
+				if(heroPos[2] >= check[i][2]-30 && heroPos[2] <= check[i][2]+100){
+					if(heroPos[0] <= check[i][0]+30){
+						onLeft = true;
+					}
+					if(heroPos[0] >= check[i][0]-30){
+						console.log("onRight");
+						onRight = true;
+					}
+				}else{
+					onRight = false;
+					onLeft = false;
+				}
+				
+			}
+		}else{
+			onFloor = false;
+			onRight = false;
+			onLeft = false;
+		}
+		
 		if(onFloor == false){
-			hero.moveZ(2);
+			hero.moveZ(3);
 		}
 	}
 	/*if(mode == true){
