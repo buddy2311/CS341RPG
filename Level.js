@@ -9,7 +9,7 @@ function Level (program, x, y, z, name, view, picture,scene) {
 		bindings.push(hold);
 	}
 	
-	Screens.call(this,program, x, y, z, name, view,scene,bindings);
+	Screens.call(this,program, x, y, z, name, view,bindings);
 	this.picture = picture;
 	this.scene = scene;
 	this.sceneSize = this.scene.length;
