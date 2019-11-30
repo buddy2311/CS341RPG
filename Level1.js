@@ -3,12 +3,14 @@ function Level1(program, x, y, z, name, view, picture)  {
 	var floors = [];
 	this.temp = "";
 	var value = 0;
-	for(var j = -970; j < 590; j = j + 60){
+	for(var j = -970;j < 700; j = j + 60){
 		temp = new DirtFloor(program, j, 30, 1000, "DirtFloor.png");
 		floors.push(temp);
 	}
+		//temp = new DirtFloor(program, 1000, 30, 1000, "DirtFloor.png");
+		//floors.push(temp);
 	value += 300;
-	for(var j = 700; j > 700 - value - 1000; j = j - 60){
+	for(var j = 700;j > 700 - value; j = j - 60){
 		temp = new DirtFloor(program, j, 30, 1000 - value, "DirtFloor.png");
 		floors.push(temp);
 	}
@@ -31,16 +33,7 @@ function Level1(program, x, y, z, name, view, picture)  {
 		temp = new DirtFloor(program, j, 30, 1000 - value, "DirtFloor.png");
 		floors.push(temp);
 	}
-	for(var j = 0; j <= 1000; j += 100){
-		temp = new Border(program, 700, 30, j, "DirtFloor.png");
-		floors.push(temp);
-		temp = new Border(program, 700, 30, -j, "DirtFloor.png");
-		floors.push(temp);
-	}
-	for(var j = 200; j >= -700; j -= 100){
-		temp = new Border(program, 400, 30, j, "DirtFloor.png");
-		floors.push(temp);
-	}
+	
 	Level.call(this,program, x, y, z, name, view, picture, floors);
 };
 Level1.prototype = Object.create(Level.prototype);

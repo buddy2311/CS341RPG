@@ -3,9 +3,9 @@ function Level (program, x, y, z, name, view, picture,scene) {
 	for(var i = 0; i < scene.length;++i){
 		var temp = scene[i].getXYZ();
 		var hold = [];
-		hold.push(temp[0]+30);
+		hold.push(temp[0]);
 		hold.push(temp[1]);
-		hold.push(temp[2]+50);
+		hold.push(temp[2]-50);
 		bindings.push(hold);
 	}
 	

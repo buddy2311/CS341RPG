@@ -137,7 +137,7 @@ function render()
 	hero.show();
 	spot = hero.getXYZ();
 	if(arena.getName() == "Demo" && spot[0] >= 50 && spot[2] >= 50){
-		arena = new Level1(program, -750, 20, 900, "Level1", screens[1],"Level1.png");
+		arena = new Level1(program, -750, 20, 850, "Level1", screens[1],"Level1.png");
 		arena.init();
 		floorBindings = arena.getBindings();
 		xyz = arena.getHeroStart();
@@ -169,6 +169,7 @@ function render()
 	if(arena.getName() == "Level1" && spot[0] <= -900 && spot[2] <= -800){
 		arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
 		arena.init();
+		floorBindings = arena.getBindings();
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
 		audio.pause();
@@ -187,6 +188,7 @@ function render()
 	if(arena.getName() == "Level3" && spot[0] >= 600 && spot[2] <= 0){
 		arena = new Map(program, 0, 20, 0, "Demo", screens[0]);
 		xyz = arena.getHeroStart();
+		floorBindings = arena.getBindings();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
 		arena.init();
 		audio.pause();
@@ -238,35 +240,6 @@ function render()
 			hero.moveZ(3);
 		}
 	}
-	/*if(mode == true){
-    // Hero's eye viewport 
-    gl.viewport( vp1_left, vp1_bottom, width, height );
-    
-    lp0[0] = hero.x + hero.xdir; // Light in front of hero, in line with hero's direction
-    lp0[1] = EYEHEIGHT;
-    lp0[2] = hero.z + hero.zdir;
-    modelViewMatrix = lookAt( vec3(hero.x, 100.0, hero.z),
-			      vec3(hero.x + hero.xdir, EYEHEIGHT, hero.z + hero.zdir),
-			      vec3(0.0,0.0,-1.0) );
-    projectionMatrix = perspective( fov, HERO_VP * aspect, near, far );
-    gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-    gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
-    arena.show();
-	hero.show();
-	}
-	else{
-    // Overhead viewport 
-    //var horiz_offset = (width * (1.0 - HERO_VP) / 20.0);
-    gl.viewport( vp1_left, vp1_bottom, width, height );
-    modelViewMatrix = lookAt(  vec3(500.0,100.0,-500.0),
-			       vec3(500.0,0.0,-500.0),
-			       vec3(0.0,0.0,-1.0) );
-    projectionMatrix = ortho( -500,500, -500,500, 0,200 );
-    gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-    gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
-    arena.show();
-	hero.show();
-	}*/
     requestAnimFrame( render );
 };
 
@@ -276,14 +249,14 @@ window.onkeydown = function(event) {
     var key = String.fromCharCode(event.keyCode);
 	switch (key) {
 	case 'D':
-		//if(onRight == false){
+		if(onRight == false){
 			hero.moveX(10);
-		//}
+		}
 	break;
     case 'A':
-		//if(onLeft == false){
+		if(onLeft == false){
 			hero.moveX(-10);
-		//}
+		}
 	break;
     case 'S':
 		if(arena.getName() == "Demo"){
@@ -291,12 +264,14 @@ window.onkeydown = function(event) {
 		}
 	break;
     case 'W':
-		//if(arena.getName() == "Demo"){
+		if(arena.getName() == "Demo"){
 			hero.moveZ(-10);
-		//}
+		}
 	break;
 	case 'E':
-		hero.jump();
+		if(onFloor == true){
+			hero.jump();
+		}
 	break;
 	case 'Q':
 	//put debug tests here
