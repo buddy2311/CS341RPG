@@ -7,6 +7,9 @@ function Level1(program, x, y, z, name, view, picture)  {
 		temp = new DirtFloor(program, j, 30, 1000, "DirtFloor.png");
 		floors.push(temp);
 	}
+	
+	temp = new Curd(program, "Curd", -730, 30, 900, 20, 0, "Curd.png");
+		floors.push(temp);
 	value += 300;
 	for(var j = 700; j > 700 - value - 1000; j = j - 60){
 		temp = new DirtFloor(program, j, 30, 1000 - value, "DirtFloor.png");

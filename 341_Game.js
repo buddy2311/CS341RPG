@@ -134,7 +134,9 @@ function render()
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	arena.getView()();
 	arena.show();
-	hero.show();
+	if(hero.getHealth() > 0){
+		hero.show();
+	}else{audio.pause();}
 	spot = hero.getXYZ();
 	if(arena.getName() == "Demo" && spot[0] >= 50 && spot[2] >= 50){
 		arena = new Level1(program, -750, 20, 900, "Level1", screens[1],"Level1.png");
@@ -218,12 +220,17 @@ function render()
 			}
 			for(var i = 0; i < check.length; ++i){
 				if(heroPos[2] >= check[i][2]-30 && heroPos[2] <= check[i][2]+100){
-					if(heroPos[0] <= check[i][0]+30){
-						onLeft = true;
+					if(check[i][3] == "DirtFloor.png"){
+						if(heroPos[0] <= check[i][0]+30){
+							onLeft = true;
+						}
+						if(heroPos[0] >= check[i][0]-30){
+							console.log("onRight");
+							onRight = true;
+						}
 					}
-					if(heroPos[0] >= check[i][0]-30){
-						console.log("onRight");
-						onRight = true;
+					else if((heroPos[0] >= check[i][0]-30 || heroPos[0] <= check[i][0]+30) && check[i][3] == "Curd.png"){
+						hero.setHealth(hero.getHealth() - 1);
 					}
 				}else{
 					onRight = false;

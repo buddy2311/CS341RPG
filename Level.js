@@ -6,6 +6,7 @@ function Level (program, x, y, z, name, view, picture,scene) {
 		hold.push(temp[0]);
 		hold.push(temp[1]);
 		hold.push(temp[2]-50);
+		hold.push(scene[i].getPicture());
 		bindings.push(hold);
 	}
 	
@@ -145,6 +146,7 @@ Level.prototype.show = function () {
 	gl.disableVertexAttribArray(this.vTexCoord);
 	
 	for(var i = 0; i < this.sceneSize; ++i){
+		if(this.scene[i].getPicture() == "Curd.png"){this.scene[i].move();}
 		this.scene[i].show();
 	}
 	

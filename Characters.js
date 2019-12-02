@@ -25,19 +25,23 @@ function Characters(program, name, x, y, z, health, attack, picture)  {
 		this.z = z;
 	};
 	
+	Characters.prototype.getPicture = function(){
+		return this.picture;
+	};
+	
 	Characters.prototype.getHealth = function(){
 		return this.health;
-	}
+	};
 	
 	Characters.prototype.setHealth = function(health){
 		this.health = health;
-	}
+	};
 	
 	Characters.prototype.getAttack = function(){
 		return this.attack;
-	}
+	};
 	
 	Characters.prototype.setAttack = function(attack){
 		this.attack = attack;
-	}
+	};
 };
