@@ -80,7 +80,7 @@ Hero.prototype.init = function() {
     // Texture 0
     var image0 = new Image();
     image0.crossOrigin = "anonymous";
-    image0.src = this.picture;
+    image0.src = "images/" +this.picture;
     image0.onload = function() { 
 	var texture0 = gl.createTexture();
 	gl.activeTexture( gl.TEXTURE0);

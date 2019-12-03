@@ -1,5 +1,6 @@
-function Floor(program, x, y, z, picture)  {
-    Objects.call(this, program, x, y, z, picture);
+function Villain(program, name, x, y, z, health, attack, picture)  {
+    Characters.call(this, program, name, x, y, z, health, attack, picture);
+
     // Not all of these are used, depending on whether you texture the
     // object or render it with a lighting model
     this.vBuffer = null;
@@ -8,6 +9,9 @@ function Floor(program, x, y, z, picture)  {
     this.iBuffer = null;
     this.vPosition = null;
     this.vNormal = null;
+	this.moveState = 1;
+	this.movePosition = 0;
+
     
     this.vertices = [
 	0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.0, 0.5,  0.5, 0.0, 0.5, // v0-v1-v2-v3 front
@@ -50,9 +54,26 @@ function Floor(program, x, y, z, picture)  {
     ];
 };
 
-Floor.prototype = Object.create(Objects.prototype);
+Villain.prototype = Object.create(Characters.prototype);
 
-Floor.prototype.init = function() {
+Villain.prototype.move = function() {
+	if(this.moveState == -1){
+		if(this.movePosition == -100){this.moveState = 1;}
+		else{
+            this.movePosition -= 0.5;
+            this.x -= 0.5;
+		}
+	}
+	else{
+		if(this.movePosition == 100){this.moveState = -1;}
+		else{
+			this.movePosition += 0.5;
+			this.x += 0.5;
+		}
+	}
+};
+
+Villain.prototype.init = function() {
 
     this.vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
@@ -73,87 +94,67 @@ Floor.prototype.init = function() {
     // WebGL guarantees at least eight texture units -- see
     // http://webglstats.com/webgl/parameter/MAX_TEXTURE_IMAGE_UNITS
     
-    // Texture 1
-    var image2 = new Image();
-    image2.crossOrigin = "anonymous";
-    image2.src = "images/dirtFloor.png";
-    image2.onload = function() { 
-	var texture2 = gl.createTexture();
-	gl.activeTexture( gl.TEXTURE2);
-	gl.bindTexture( gl.TEXTURE_2D, texture2 );
+    // Texture 0
+    var image3 = new Image();
+    image3.crossOrigin = "anonymous";
+    image3.src = "images/" +this.picture;
+    image3.onload = function() { 
+	var texture3 = gl.createTexture();
+	gl.activeTexture( gl.TEXTURE3);
+	gl.bindTexture( gl.TEXTURE_2D, texture3 );
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
-		      gl.UNSIGNED_BYTE, image2);
+		      gl.UNSIGNED_BYTE, image3);
 	gl.generateMipmap( gl.TEXTURE_2D );
 	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, 
 			  gl.NEAREST_MIPMAP_LINEAR );
 	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
     };
-
-    var image4 = new Image();
-    image4.crossOrigin = "anonymous";
-    image4.src = "images/brick-wall.png";
-    image4.onload = function () {
-        var texture4 = gl.createTexture();
-        gl.activeTexture(gl.TEXTURE4);
-        gl.bindTexture(gl.TEXTURE_2D, texture4);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
-            gl.UNSIGNED_BYTE, image4);
-        gl.generateMipmap(gl.TEXTURE_2D);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
-            gl.NEAREST_MIPMAP_LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    };
 };
 
-Floor.prototype.show = function () {
+Villain.prototype.show = function() {
 
     g_matrixStack.push(modelViewMatrix);
+    //modelViewMatrix = mult(modelViewMatrix, rotateY(this.degrees));
     modelViewMatrix = mult(modelViewMatrix, translate(this.x, 0.0, this.z));
-    modelViewMatrix = mult(modelViewMatrix, scalem(60.0, 0.0, 100.0));
+    modelViewMatrix = mult(modelViewMatrix, scalem(60.0,50.0,100.0));
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
-    this.vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
+    this.vPosition = gl.getAttribLocation( program, "vPosition" );
     /*if (this.vPosition < 0) {
 	console.log('Failed to get the storage location of vPosition');
     }*/
     gl.vertexAttribPointer(this.vPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(this.vPosition);
+    gl.enableVertexAttribArray( this.vPosition );    
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.nBuffer);
-    this.vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.nBuffer );
+    this.vNormal = gl.getAttribLocation( program, "vNormal" );
     /*if (this.vPosition < 0) {
 	console.log('Failed to get the storage location of vPosition');
     }*/
-    gl.vertexAttribPointer(this.vNormal, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(this.vNormal);
+    gl.vertexAttribPointer( this.vNormal, 3, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( this.vNormal );
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.tBuffer);
-    this.vTexCoord = gl.getAttribLocation(program, "vTexCoord");
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.tBuffer);
+    this.vTexCoord = gl.getAttribLocation( program, "vTexCoord");
     /*if (this.vTexCoord < 0) {
 	console.log('Failed to get the storage location of vTexCoord');
     }*/
     gl.vertexAttribPointer(this.vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(this.vTexCoord);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iBuffer);
+    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.iBuffer );
 
-    gl.uniform1i(gl.getUniformLocation(program, "texture_flag"), 1);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.enable(gl.CULL_FACE);
+    gl.uniform1i(gl.getUniformLocation(program, "texture_flag"),
+ 		 1);
+    gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
+	
+	gl.enable(gl.BLEND);
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+	gl.enable(gl.CULL_FACE);	
     gl.cullFace(gl.FRONT);
-
-    if (this.picture == "DirtFloor.png") {
-        gl.uniform1i(gl.getUniformLocation(program, "texture"), 2);
-    }
-    else if (this.picture == "brick-wall.png") {
-        gl.uniform1i(gl.getUniformLocation(program, "texture"), 4);
-    }
-
+	
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 3); 
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0 );  
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 12 ); 
     gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 24 ); 

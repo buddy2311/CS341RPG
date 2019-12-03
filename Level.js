@@ -6,12 +6,14 @@ function Level (program, x, y, z, name, view, picture,scene) {
 		hold.push(temp[0]);
 		hold.push(temp[1]);
 		hold.push(temp[2]-50);
+		hold.push(scene[i].getPicture());
 		bindings.push(hold);
 	}
 	
 	Screens.call(this,program, x, y, z, name, view,bindings);
 	this.picture = picture;
-	this.scene = scene;
+    this.scene = scene;
+    this.bindings = bindings;
 	this.sceneSize = this.scene.length;
 	this.vertices = [
 	ARENASIZE, 0.5, ARENASIZE, -ARENASIZE, 0.5, ARENASIZE, -ARENASIZE, 0.0, ARENASIZE,  ARENASIZE, 0.0, ARENASIZE, // v0-v1-v2-v3 front
@@ -87,7 +89,7 @@ function Level (program, x, y, z, name, view, picture,scene) {
 		// Texture 0
 		var image1 = new Image();
 		image1.crossOrigin = "anonymous";
-		image1.src = this.picture;
+        image1.src = "images/" +this.picture;
 		image1.onload = function() { 
 		var texture1 = gl.createTexture();
 		gl.activeTexture( gl.TEXTURE1);
@@ -143,8 +145,14 @@ Level.prototype.show = function () {
 	gl.disableVertexAttribArray(this.vPosition);
 	gl.disableVertexAttribArray(this.vNormal);
 	gl.disableVertexAttribArray(this.vTexCoord);
-	
 	for(var i = 0; i < this.sceneSize; ++i){
+        if (this.scene[i].getPicture() == "Curd.png") {
+            this.scene[i].move();
+            /*var villainxyz = scene[i].getXYZ();
+            this.bindings[i][0] = villainxyz[0];
+            this.bindings[i][1] = villainxyz[1]-50;
+            this.bindings[i][2] = villainxyz[2];*/
+        }
 		this.scene[i].show();
 	}
 	

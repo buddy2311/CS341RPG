@@ -6,7 +6,11 @@ function Screens(program, x, y, z, name, view, bindings)  {
     this.name = name;	//String
     this.view = view;	//Function that creates the camera
 	this.bindings = bindings;
-	
+
+    Screens.prototype.setBindings = function (bindings) {
+        this.bindings = bindings;
+    };
+
 	Screens.prototype.getBindings = function () {
 	return this.bindings;
     };

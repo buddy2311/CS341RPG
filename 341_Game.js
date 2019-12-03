@@ -54,7 +54,7 @@ var floorBindings = [];
 var onFloor;
 var onLeft = false;
 var onRight = false;
-var audio = new Audio('Meanwhile in Bavaria.mp3');
+var audio = new Audio('music/Meanwhile in Bavaria.mp3');
 var obj = 0;
 
 var g_matrixStack = []; // Stack for storing a matrix
@@ -134,8 +134,17 @@ function render()
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	arena.getView()();
 	arena.show();
-	hero.show();
-	spot = hero.getXYZ();
+	if(hero.getHealth() > 0){
+		hero.show();
+    } else {
+        audio.pause();
+        audio = new Audio('music/Wilhelm Scream sound effect.mp3');
+        audio.play();
+    }
+    spot = hero.getXYZ();
+    if (spot[2] > ARENASIZE) {
+        hero.setHealth(hero.getHealth()-0.3);
+    }
 	if(arena.getName() == "Demo" && spot[0] >= 50 && spot[2] >= 50){
 		arena = new Level1(program, -750, 20, 900, "Level1", screens[1],"Level1.png");
 		arena.init();
@@ -143,7 +152,7 @@ function render()
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
 		audio.pause();
-		audio = new Audio('Double Polka.mp3');
+        audio = new Audio('music/Double Polka.mp3');
 		audio.play();
 	}
 	if(arena.getName() == "Demo" && spot[0] <= -50 && spot[0] >= -150 && spot[2] <= -50 && spot[2] >= -150){
@@ -153,7 +162,7 @@ function render()
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
 		audio.pause();
-		audio = new Audio('Double Polka.mp3');
+        audio = new Audio('music/Double Polka.mp3');
 		audio.play();
 	}
 	if(arena.getName() == "Demo" && spot[0] <= -500 && spot[0] >= -600 && spot[2] <= -50 && spot[2] >= -150){
@@ -163,7 +172,7 @@ function render()
 		xyz = arena.getHeroStart();
 		hero.setXYZ(950,xyz[1],xyz[2]);
 		audio.pause();
-		audio = new Audio('Four Beers Polka.mp3');
+        audio = new Audio('music/Four Beers Polka.mp3');
 		audio.play();
 	}
 	if(arena.getName() == "Level1" && spot[0] <= -900 && spot[2] <= -800){
@@ -173,7 +182,7 @@ function render()
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
 		audio.pause();
-		audio = new Audio('Meanwhile in Bavaria.mp3');
+        audio = new Audio('music/Meanwhile in Bavaria.mp3');
 		audio.play();
 	}
 	if(arena.getName() == "Level2" && spot[0] >= 100 && spot[2] <= -200){
@@ -183,7 +192,7 @@ function render()
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
 		audio.pause();
-		audio = new Audio('Meanwhile in Bavaria.mp3');
+        audio = new Audio('music/Meanwhile in Bavaria.mp3');
 		audio.play();
 	}
 	if(arena.getName() == "Level3" && spot[0] >= 600 && spot[2] <= 0){
@@ -193,12 +202,12 @@ function render()
 		xyz = arena.getHeroStart();
 		hero.setXYZ(xyz[0],xyz[1],xyz[2]);
 		audio.pause();
-		audio = new Audio('Meanwhile in Bavaria.mp3');
+        audio = new Audio('music/Meanwhile in Bavaria.mp3');
 		audio.play();
 	}
-
+    floorBindings = arena.getBindings();
 	if(floorBindings != null && floorBindings.length != 0){
-		var heroPos = hero.getXYZ();
+        var heroPos = hero.getXYZ();
 		var check = [];
 		for(var j = 0; j < floorBindings.length; ++j){
 			var floorZ = floorBindings[j];
@@ -209,7 +218,7 @@ function render()
 		}
 		if(check.length > 0){
 			for(var i = 0; i < check.length; ++i){
-				if(heroPos[0] <= check[i][0]+35 && heroPos[0] >= check[i][0]-35 && heroPos[2] >= check[i][2]-70 && heroPos[2] <= check[i][2]-50){
+                if (heroPos[0] <= check[i][0] + 35 && heroPos[0] >= check[i][0] - 35 && heroPos[2] >= check[i][2] - 70 && heroPos[2] <= check[i][2] - 50 && check[i][3] == "DirtFloor.png"){
 					onFloor = true;
 					break;
 				}
@@ -217,13 +226,18 @@ function render()
 				
 			}
 			for(var i = 0; i < check.length; ++i){
-				if(heroPos[2] >= check[i][2]-30 && heroPos[2] <= check[i][2]+100){
-					if(heroPos[0] <= check[i][0]+30){
-						onLeft = true;
+				if(heroPos[2] > check[i][2]-50 && heroPos[2] <= check[i][2]+100){
+					if(check[i][3] != "Curd.png"){
+                        if (heroPos[0] <= check[i][0] + 40 && heroPos[0] >= check[i][0]){
+							onLeft = true;
+						}
+                        if (heroPos[0] >= check[i][0] - 40 && heroPos[0] <= check[i][0]){
+							console.log("onRight");
+							onRight = true;
+						}
 					}
-					if(heroPos[0] >= check[i][0]-30){
-						console.log("onRight");
-						onRight = true;
+					else if((heroPos[0] >= check[i][0]-30 || heroPos[0] <= check[i][0]+30) && check[i][3] == "Curd.png"){
+						hero.setHealth(hero.getHealth() - 0.1);
 					}
 				}else{
 					onRight = false;
@@ -251,29 +265,37 @@ window.onkeydown = function(event) {
 	switch (key) {
 	case 'D':
 		if(onRight == false){
-			hero.moveX(10);
+			hero.moveX(5);
 		}
 	break;
     case 'A':
 		if(onLeft == false){
-			hero.moveX(-10);
+			hero.moveX(-5);
 		}
 	break;
     case 'S':
 		if(arena.getName() == "Demo"){
-			hero.moveZ(10);
+			hero.moveZ(5);
 		}
 	break;
     case 'W':
 		if(arena.getName() == "Demo"){
-			hero.moveZ(-10);
+			hero.moveZ(-5);
 		}
 	break;
 	case 'E':
 		if(onFloor == true){
 			hero.jump();
 		}
-	break;
+    break;
+    case 'R':
+        if (hero.getHealth() <= 0) {
+            var xyz = arena.getHeroStart();
+            hero.setXYZ(xyz[0], xyz[1], xyz[2]);
+            hero.setHealth(100);
+            audio.play();
+        }
+    break;
 	case 'Q':
 	//put debug tests here
 	break;

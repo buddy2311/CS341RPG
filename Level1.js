@@ -7,6 +7,9 @@ function Level1(program, x, y, z, name, view, picture)  {
 		temp = new DirtFloor(program, j, 30, 1000, "DirtFloor.png");
 		floors.push(temp);
 	}
+	
+	temp = new Curd(program, "Curd", -730, 30, 900, 20, 0, "Curd.png");
+		floors.push(temp);
 	value += 300;
 	for(var j = 700; j > 700 - value - 1000; j = j - 60){
 		temp = new DirtFloor(program, j, 30, 1000 - value, "DirtFloor.png");
@@ -32,13 +35,13 @@ function Level1(program, x, y, z, name, view, picture)  {
 		floors.push(temp);
 	}
 	for(var j = 0; j <= 1000; j += 100){
-		temp = new Border(program, 700, 30, j, "DirtFloor.png");
+		temp = new Border(program, 700, 30, j, "brick-wall.png");
 		floors.push(temp);
-		temp = new Border(program, 700, 30, -j, "DirtFloor.png");
+        temp = new Border(program, 700, 30, -j, "brick-wall.png");
 		floors.push(temp);
 	}
 	for(var j = 200; j >= -700; j -= 100){
-		temp = new Border(program, 400, 30, j, "DirtFloor.png");
+        temp = new Border(program, 400, 30, j, "brick-wall.png");
 		floors.push(temp);
 	}
 	Level.call(this,program, x, y, z, name, view, picture, floors);

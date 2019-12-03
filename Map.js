@@ -70,7 +70,7 @@ function Map (program, x, y, z, name, view) {
 		// Texture 0
 		var image1 = new Image();
 		image1.crossOrigin = "anonymous";
-		image1.src = "mapscreen3.png";
+        image1.src = "images/mapscreen3.png";
 		image1.onload = function() { 
 		var texture1 = gl.createTexture();
 		gl.activeTexture( gl.TEXTURE1);
